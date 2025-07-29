@@ -54,3 +54,23 @@ def categoryby_id(request,id):
     else:
          return Response({'msg':"invalid request"},status=status.HTTP_400_BAD_REQUEST)
      
+#For Product     
+@api_view(['POST','GET'])
+@permission_classes([IsAuthenticated])
+def product_view(request):
+    if request.method == 'POST':
+        searializer = ProductSerializer(data=request.data)
+        if searializer.is_valid():
+            searializer.save(user=request.user)   #user ko id  pass garxa
+            return Response({'msg': "Product added successffully",'product':searializer.data},status=status.HTTP_201_CREATED)
+        else:
+            return Response({'msg':"Failed to add product",'err':searializer.errors},status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == 'GET':
+        try:
+            product = Product.objects.all()
+            searializer = ProductSerializer(product, many=True)
+            return Response(searializer.data,status=status.HTTP_200_OK) 
+        except Exception as e:
+            return Response({'msg':"Failed to fetch data",'err':e})
+
+
