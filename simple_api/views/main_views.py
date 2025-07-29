@@ -74,3 +74,30 @@ def product_view(request):
             return Response({'msg':"Failed to fetch data",'err':e})
 
 
+#For Product by id
+@api_view(['PUT','DELETE', 'GET'])
+@permission_classes([IsAuthenticated])
+def productby_id(request,id):
+    try:
+        product = Product.objects.get(id=id)
+    except Product.DoesNotExist:
+        return Response({'msg':"Product does not exist"})
+    
+    if request.method == 'PUT':
+        searializer = ProductSerializer(product, data=request.data, partial=True)
+        if searializer.is_valid():
+            searializer.save()
+            return Response({'msg':"Product updated successfully!!"},status=status.HTTP_200_OK)
+        else: 
+            return Response({'msg':"Failed to update product", 'err':searializer.errors},status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'GET':
+        searializer = ProductSerializer(product)
+        return Response({'data':searializer.data},status=status.HTTP_200_OK)
+    
+    elif request.method == 'DELETE':
+        product.delete()
+        return Response({'msg':"Product deleted successfully"},status=status.HTTP_200_OK)
+
+    else:
+        return Response({'msg':"Invalid request"},status=status.HTTP_400_BAD_REQUEST)
