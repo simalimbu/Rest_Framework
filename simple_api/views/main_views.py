@@ -112,3 +112,20 @@ def category_products(request,category_id):
         return Response({'data':serializer.data},status=status.HTTP_200_OK)
     else:
         return Response({'msg':"Umable to fetch data"},status=status.HTTP_400_BAD_REQUEST)
+    
+#To get category and product
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def category_with_products(request):
+    categories = Category.objects.all() 
+    data = []
+
+    for category in categories:
+        products = Product.objects.filter(category=category)
+        if products.exists():
+            category_data = CategorySerializer(category).data
+            product_data = ProductSerializer(products, many=True).data
+            category_data['products'] = product_data
+            data.append(category_data)
+
+    return Response({'data': data}, status=status.HTTP_200_OK)
