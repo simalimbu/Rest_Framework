@@ -101,3 +101,14 @@ def productby_id(request,id):
 
     else:
         return Response({'msg':"Invalid request"},status=status.HTTP_400_BAD_REQUEST)
+    
+#To get product in each category
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def category_products(request,category_id):
+    if request.method == 'GET':
+        product = Product.objects.filter(category=category_id)
+        serializer = ProductSerializer(product, many=True)
+        return Response({'data':serializer.data},status=status.HTTP_200_OK)
+    else:
+        return Response({'msg':"Umable to fetch data"},status=status.HTTP_400_BAD_REQUEST)
